@@ -1,7 +1,8 @@
 import os
 from datetime import datetime
+from app_paths import get_log_file
 
-LOG_FILE = "logs.txt"
+LOG_FILE = get_log_file()
 
 def log_event(event_type: str, message: str):
     """

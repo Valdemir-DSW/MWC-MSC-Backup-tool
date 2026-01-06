@@ -1,4 +1,5 @@
 import os
+import subprocess
 from datetime import datetime
 
 from PyQt5.QtWidgets import (
@@ -21,6 +22,7 @@ from config import (
 from process_watcher import GameProcessWatcher
 from logger import log_event, read_log, clear_log
 from links_manager import open_link
+from app_paths import get_log_file
 
 
 class DisclaimerDialog(QDialog):
@@ -703,20 +705,36 @@ class MainWindow(QMainWindow):
         self.log_display.setStyleSheet("font-family: Courier; font-size: 10px;")
         layout.addWidget(self.log_display)
 
-        # Layout dos botões
-        layout_buttons = QHBoxLayout()
+        # Layout dos botões - usando QVBoxLayout para 2 linhas
+        buttons_container = QVBoxLayout()
 
+        # Primeira linha de botões
+        layout_buttons_line1 = QHBoxLayout()
+        
         btn_refresh = QPushButton("🔄 Atualizar")
         btn_refresh.clicked.connect(self.refresh_logs)
-        layout_buttons.addWidget(btn_refresh)
+        layout_buttons_line1.addWidget(btn_refresh)
 
         btn_clear = QPushButton("🗑️ Limpar logs")
         btn_clear.setStyleSheet("background-color: #f44336; color: white;")
         btn_clear.clicked.connect(self.clear_logs_btn)
-        layout_buttons.addWidget(btn_clear)
+        layout_buttons_line1.addWidget(btn_clear)
 
-        layout_buttons.addStretch()
-        layout.addLayout(layout_buttons)
+        layout_buttons_line1.addStretch()
+        buttons_container.addLayout(layout_buttons_line1)
+
+        # Segunda linha de botões
+        layout_buttons_line2 = QHBoxLayout()
+        
+        btn_open_notepad = QPushButton("📄 Abrir com Bloco de Notas")
+        btn_open_notepad.setStyleSheet("background-color: #4CAF50; color: white;")
+        btn_open_notepad.clicked.connect(self.open_logs_notepad)
+        layout_buttons_line2.addWidget(btn_open_notepad)
+
+        layout_buttons_line2.addStretch()
+        buttons_container.addLayout(layout_buttons_line2)
+
+        layout.addLayout(buttons_container)
 
         tab.setLayout(layout)
         self.tabs.addTab(tab, "📋 Logs")
@@ -754,3 +772,17 @@ class MainWindow(QMainWindow):
                 QMessageBox.information(self, "Sucesso", "Logs foram limpos.")
             else:
                 QMessageBox.warning(self, "Erro", "Não foi possível limpar os logs.")
+
+    def open_logs_notepad(self):
+        """Abre o arquivo de log com Bloco de Notas"""
+        try:
+            log_file = get_log_file()
+            if os.path.exists(log_file):
+                subprocess.Popen(['notepad', log_file])
+                log_event("INFO", "Arquivo de log aberto no Bloco de Notas")
+            else:
+                QMessageBox.warning(self, "Erro", "Arquivo de log não encontrado.")
+        except Exception as e:
+            log_event("ERROR", f"Erro ao abrir log no Bloco de Notas: {str(e)}")
+            QMessageBox.critical(self, "Erro", f"Não foi possível abrir o Bloco de Notas:\n{str(e)}")
+

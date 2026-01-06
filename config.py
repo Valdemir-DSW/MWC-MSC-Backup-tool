@@ -2,8 +2,9 @@ import json
 import os
 import winreg
 from logger import log_event
+from app_paths import get_config_file
 
-CONFIG_FILE = "config.json"
+CONFIG_FILE = get_config_file()
 
 def load_config():
     try:
@@ -55,7 +56,9 @@ def is_startup_enabled():
 def enable_startup():
     """Registra a app para iniciar com Windows"""
     try:
-        app_path = os.path.abspath("main.py")
+        from app_paths import get_app_dir
+        app_dir = get_app_dir()
+        app_path = os.path.join(app_dir, "main.py")
         python_exe = os.sys.executable
         startup_cmd = f'"{python_exe}" "{app_path}"'
         
