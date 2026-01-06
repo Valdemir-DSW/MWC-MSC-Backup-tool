@@ -1,0 +1,2 @@
+hub=https://github.com/Valdemir-DSW/MWC-MSC-Backup-tool
+discord=https://discord.com/invite/qquAvmgDZ7
